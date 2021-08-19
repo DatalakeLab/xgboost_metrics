@@ -89,46 +89,46 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     total_c= memory_profiler.memory_usage()[0]
     total_p= memory_profiler.memory_usage()[0]
     
-    uso("Performing tests: Begin")
+    uso("Performing Cython tests: Begin")
     for i in xrange(n_samples):
         for j in xrange(n_features): 
             x_cython[j] = x[i][j]#np.around(x[i][j], 3)
-
-        reshaped_sample = x[i].reshape(1, n_features)
-
-        preds_xgb = model.predict(reshaped_sample, ntree_limit = n_estimators)[0] #xgb prediction
+            
         preds_c_xgb = model_c.predict(x_cython, n_estimators) #C-xgb prediction
-        
-        #comparing predictions
-        assert(abs(preds_xgb - preds_c_xgb) < 1e-3)
         
         #time measurement for CythonXGB
         start = time.time()
-        mem_c = memory_profiler.memory_usage()[0]
+        #mem_c = memory_profiler.memory_usage()[0]
         for q in xrange(N):
             model_c.predict(x_cython, n_estimators)
-            mem_c += memory_profiler.memory_usage()[0]
-        total_c += mem_c/N
+        #mem_c += memory_profiler.memory_usage()[0]
+        #total_c += mem_c/N
         time_c_xgb += (time.time() - start)
+    uso("Performing Cython XGBoost tests: End")
+    
+    uso("Performing Python XGBoost tests: Begin")
+    for i in xrange(n_samples):
+        reshaped_sample = x[i].reshape(1, n_features)
+
+        preds_xgb = model.predict(reshaped_sample, ntree_limit = n_estimators)[0] #xgb prediction
 
         #time measurement for XGBoost
         start = time.time()
-        mem_p = memory_profiler.memory_usage()[0]
+        #mem_p = memory_profiler.memory_usage()[0]
         for q in xrange(N):
             model.predict(reshaped_sample)
-            mem_p += memory_profiler.memory_usage()[0]
-        total_p += mem_p/N
-        time_xgb += (time.time() - start)
-        
-    uso("Performing tests: End")
+        #mem_p += memory_profiler.memory_usage()[0]
+        #total_p += mem_p/N
+        time_xgb += (time.time() - start)     
+    uso("Performing Python XGBoost tests: End")
 
     
     print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
     print "XGBoost mean time in ms: %f" % (time_xgb*1000)
-    print "XGBoost mean Memory in ms: %f" % (total_p/n_samples)
+    #print "XGBoost mean Memory in ms: %f" % (total_p/n_samples)
 
     print "C_XGBoost mean time in ms: %f" % (time_c_xgb*1000)
-    print "C_XGBoost mean Memory in ms: %f" % (total_c/n_samples)
+    #print "C_XGBoost mean Memory in ms: %f" % (total_c/n_samples)
 
     print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
 
