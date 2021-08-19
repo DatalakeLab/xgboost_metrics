@@ -18,22 +18,22 @@ import memory_profiler
 
 
 def uso(mensagem):
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    print ("**********************************************")
+    #usage = resource.getrusage(resource.RUSAGE_SELF)
+    #print ("**********************************************")
     print (mensagem)
     mem_usage = memory_profiler.memory_usage()[0]
-    print ("**** Memory Usage" + str(mem_usage))
-    for name, desc in [
-     ('ru_utime', 'User time'),
-     ('ru_stime', 'System time'),
-     ('ru_maxrss', 'Max. Resident Set Size'),
-     ('ru_ixrss', 'Shared Memory Size'),
-     ('ru_idrss', 'Unshared Memory Size'),
-     ('ru_isrss', 'Stack Size'),
-     ('ru_inblock', 'Block inputs'),
-     ('ru_oublock', 'Block outputs'),
-     ]:
-     print '%-25s (%-10s) = %s' % (desc, name, getattr(usage, name))
+    print ("**** Memory Usage: " + str(mem_usage))
+    #for name, desc in [
+    # ('ru_utime', 'User time'),
+    # ('ru_stime', 'System time'),
+    # ('ru_maxrss', 'Max. Resident Set Size'),
+    # ('ru_ixrss', 'Shared Memory Size'),
+    # ('ru_idrss', 'Unshared Memory Size'),
+    # ('ru_isrss', 'Stack Size'),
+    # ('ru_inblock', 'Block inputs'),
+    # ('ru_oublock', 'Block outputs'),
+    # ]:
+    # print '%-25s (%-10s) = %s' % (desc, name, getattr(usage, name))
     
 def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, depth = 11):
     '''
@@ -55,12 +55,17 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
                                   subsample = 0.8, colsample_bytree = 0.8, random_state = 5, missing = np.nan, base_score = base_score)
         uso("Creating XGBRegressor: End")
 
+        uso("Fitting Model: Begin")
         model.fit(x, y)
+        uso("Fitting Model: End")
 
         return model
 
     model = create_xgb()
+    
+    uso("Model Booster: Begin")
     booster = model.get_booster()
+    uso("Model Booster: End")
 
     #dumping xgb to json files
     tree_data = booster.get_dump(dump_format='json')
@@ -73,11 +78,18 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
 
     #creating instance of CXgboost xgboost class
     # 0 in parameters means objective 'reg:linear'
+    uso("CXgboost Intanciation: Begin")
     cdef CXgboost model_c = CXgboost(depth, n_features, n_estimators, 0, base_score)
+    uso("CXgboost Intanciation: End")
+
     cdef float x_cython[20], time_c_xgb = 0.0, time_xgb = 0.0
     cdef int j, q, N = 10
 
     #performing tests
+    total_c= memory_profiler.memory_usage()[0]
+    total_p= memory_profiler.memory_usage()[0]
+    
+    uso("Performing tests: Begin")
     for i in xrange(n_samples):
         for j in xrange(n_features): 
             x_cython[j] = x[i][j]#np.around(x[i][j], 3)
@@ -92,21 +104,31 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
         
         #time measurement for CythonXGB
         start = time.time()
+        mem_c = memory_profiler.memory_usage()[0]
         for q in xrange(N):
             model_c.predict(x_cython, n_estimators)
+            mem_c += memory_profiler.memory_usage()[0]
+        total_c += mem_c/N
         time_c_xgb += (time.time() - start)
 
         #time measurement for XGBoost
         start = time.time()
+        mem_p = memory_profiler.memory_usage()[0]
         for q in xrange(N):
             model.predict(reshaped_sample)
+            mem_p += memory_profiler.memory_usage()[0]
+        total_p += mem_p/N
         time_xgb += (time.time() - start)
+        
+    uso("Performing tests: End")
 
     
     print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
     print "XGBoost mean time in ms: %f" % (time_xgb*1000)
+    print "XGBoost mean Memory in ms: %f" % (total_p/n_samples)
 
     print "C_XGBoost mean time in ms: %f" % (time_c_xgb*1000)
+    print "C_XGBoost mean Memory in ms: %f" % (total_c/n_samples)
 
     print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
 
