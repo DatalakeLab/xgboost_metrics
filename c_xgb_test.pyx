@@ -12,6 +12,7 @@ import pickle
 import time
 from sklearn.datasets import make_regression, make_classification
 from libc.stdio cimport printf
+import psutil
 
 def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, depth = 11):
     '''
@@ -52,6 +53,8 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     cdef int j, q, N = 10
 
     #performing tests
+    total_p=0
+    total_c=0
     for i in xrange(n_samples):
         for j in xrange(n_features): 
             x_cython[j] = x[i][j]#np.around(x[i][j], 3)
@@ -65,21 +68,34 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
         assert(abs(preds_xgb - preds_c_xgb) < 1e-3)
         
         #time measurement for CythonXGB
+        memory_c_xgp = psutil.Process().memory_info().rss / (1024 * 1024)
         start = time.time()
         for q in xrange(N):
             model_c.predict(x_cython, n_estimators)
+            memory_c_xgp += (psutil.Process().memory_info().rss / (1024 * 1024))
         time_c_xgb += (time.time() - start)
+        memory_c_xgp = memory_c_xgp/N
+        total_c += memory_c_xgp
 
         #time measurement for XGBoost
+        memory_p_xgp = psutil.Process().memory_info().rss / (1024 * 1024)
         start = time.time()
         for q in xrange(N):
             model.predict(reshaped_sample)
+            memory_p_xgp += (psutil.Process().memory_info().rss / (1024 * 1024))
         time_xgb += (time.time() - start)
+        memory_p_xgp = memory_p_xgp/N
+        total_p += memory_p_xgp
 
+    total_c = total_c/n_samples
+    total_p = total_p/n_samples
     print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
     print "XGBoost mean time in ms: %f" % (time_xgb*1000)
-    print "C_XGBoost mean time in ms: %f" % (time_c_xgb*1000)
-    print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
+    print "Python XGBoost Memory: %f" % (total_p)
 
+    print "C_XGBoost mean time in ms: %f" % (time_c_xgb*1000)
+    print "Cython XGBoost Memory: %f" % (total_c)
+
+    print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
 
 
