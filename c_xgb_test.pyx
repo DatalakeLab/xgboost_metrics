@@ -15,6 +15,8 @@ from libc.stdio cimport printf
 import psutil
 import resource
 import memory_profiler
+from memory_profiler import profile
+
 
 
 def uso(mensagem):
@@ -34,7 +36,8 @@ def uso(mensagem):
     # ('ru_oublock', 'Block outputs'),
     # ]:
     # print '%-25s (%-10s) = %s' % (desc, name, getattr(usage, name))
-    
+   
+@profile
 def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, depth = 11):
     '''
     correctness and performance test for C-xgb for regression tasks
