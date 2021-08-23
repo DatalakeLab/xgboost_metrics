@@ -27,7 +27,7 @@ def uso(mensagem):
     print ("CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
     #print ("CPU Percent:1: " + str(psutil.cpu_percent(interval=1, percpu=True)))
     #print ("CPU Percent:0.1: " + str(psutil.cpu_percent(interval=0.1, percpu=True)))
-   mem_usage = memory_profiler.memory_usage()[0]
+    mem_usage = memory_profiler.memory_usage()[0]
     print ("**** Memory Usage: " + str(mem_usage))
     #for name, desc in [
     # ('ru_utime', 'User time'),
