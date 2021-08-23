@@ -109,8 +109,8 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
            model_c.predict(x_cython, n_estimators)
            if ((i % 1000) == 0) and ((q % 5) == 0):
                 mem_usage = memory_profiler.memory_usage()[0]
-                print ("**** Memory Usage: " + str(mem_usage))
-                
+                #print ("**** Memory Usage: " + str(mem_usage))
+                uso ("Predicting C_XGB...")
         #mem_c += memory_profiler.memory_usage()[0]
         #total_c += mem_c/N
         time_c_xgb += (time.time() - start)
@@ -129,7 +129,8 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
             model.predict(reshaped_sample)
             if ((i % 1000) == 0) and ((q % 5) == 0):
                 mem_usage = memory_profiler.memory_usage()[0]
-                print ("**** Memory Usage: " + str(mem_usage))
+                #print ("**** Memory Usage: " + str(mem_usage))
+                uso ("Predicting XGB...")
 
         #mem_p += memory_profiler.memory_usage()[0]
         #total_p += mem_p/N
