@@ -41,7 +41,6 @@ def uso(mensagem):
     # ]:
     # print '%-25s (%-10s) = %s' % (desc, name, getattr(usage, name))
    
-@profile
 def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, depth = 11):
     '''
     correctness and performance test for C-xgb for regression tasks
@@ -56,23 +55,23 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     #training xgb classifier on random dataset
     def create_xgb():
             
-        uso("Creating XGBRegressor: Begin")
+        uso("Training XGB Python: Begin")
+        
         model = xgb.XGBRegressor(max_depth = depth, learning_rate = 0.1, n_estimators = n_estimators, silent = True, 
                                  objective = 'reg:linear', n_jobs = 8, min_child_weight = 1, 
                                   subsample = 0.8, colsample_bytree = 0.8, random_state = 5, missing = np.nan, base_score = base_score)
-        uso("Creating XGBRegressor: End")
 
-        uso("Fitting Model: Begin")
         model.fit(x, y)
-        uso("Fitting Model: End")
+        
+        uso("Training XGB Python: END")
 
         return model
 
     model = create_xgb()
     
-    uso("Model Booster: Begin")
+    #uso("Model Booster: Begin")
     booster = model.get_booster()
-    uso("Model Booster: End")
+    #uso("Model Booster: End")
 
     #dumping xgb to json files
     tree_data = booster.get_dump(dump_format='json')
@@ -85,17 +84,18 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
 
     #creating instance of CXgboost xgboost class
     # 0 in parameters means objective 'reg:linear'
-    uso("CXgboost Intanciation: Begin")
+    
+    uso("Training C_XGB Cython: Begin")
     cdef CXgboost model_c = CXgboost(depth, n_features, n_estimators, 0, base_score)
-    uso("CXgboost Intanciation: End")
+    uso("Training C_XGB Cython: END")
 
     cdef float x_cython[50], time_c_xgb = 0.0, time_xgb = 0.0
     cdef int j, q, N = 10
 
     #performing tests
-    total_c= memory_profiler.memory_usage()[0]
-    total_p= memory_profiler.memory_usage()[0]
-    uso("Performing Cython tests: Begin")
+    #total_c= memory_profiler.memory_usage()[0]
+    #total_p= memory_profiler.memory_usage()[0]
+    uso("Predicting C_XGB Cython: Begin")
     for i in xrange(n_samples):
         for j in xrange(n_features): 
             x_cython[j] = x[i][j]#np.around(x[i][j], 3)
@@ -114,9 +114,9 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
         #mem_c += memory_profiler.memory_usage()[0]
         #total_c += mem_c/N
         time_c_xgb += (time.time() - start)
-    uso("Performing Cython XGBoost tests: End")
+    uso("Predicting C_XGB Cython: END")
     
-    uso("Performing Python XGBoost tests: Begin")
+    uso("Predicting XGB Python: BEGIN")
     for i in xrange(n_samples):
         reshaped_sample = x[i].reshape(1, n_features)
 
@@ -134,7 +134,7 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
         #mem_p += memory_profiler.memory_usage()[0]
         #total_p += mem_p/N
         time_xgb += (time.time() - start)     
-    uso("Performing Python XGBoost tests: End")
+    uso("Predicting XGB Python: END")
 
     
     print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
