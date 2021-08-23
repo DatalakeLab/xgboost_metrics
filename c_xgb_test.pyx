@@ -23,12 +23,12 @@ def uso(mensagem):
     #usage = resource.getrusage(resource.RUSAGE_SELF)
     #print ("**********************************************")
     print (mensagem)
-    print ("CPU Usage: " + str(psutil.cpu_times()))
-    print ("CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
+    #print ("CPU Usage: " + str(psutil.cpu_times()))
+    print ("***CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
     #print ("CPU Percent:1: " + str(psutil.cpu_percent(interval=1, percpu=True)))
     #print ("CPU Percent:0.1: " + str(psutil.cpu_percent(interval=0.1, percpu=True)))
     mem_usage = memory_profiler.memory_usage()[0]
-    print ("**** Memory Usage: " + str(mem_usage))
+    print ("***Memory Usage: " + str(mem_usage))
     #for name, desc in [
     # ('ru_utime', 'User time'),
     # ('ru_stime', 'System time'),
@@ -48,9 +48,9 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     cdef float base_score = 0.5
 
     #creating dataset
-    uso("Creating DataSet: Begin")
+    ##uso("Creating DataSet: Begin")
     x, y = make_regression(n_samples = n_samples, n_features = n_features, n_informative = n_features - 1, random_state = 1)
-    uso("Creating DataSet: End")
+    ##uso("Creating DataSet: End")
 
     #training xgb classifier on random dataset
     def create_xgb():
