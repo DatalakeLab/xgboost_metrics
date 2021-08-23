@@ -23,7 +23,11 @@ def uso(mensagem):
     #usage = resource.getrusage(resource.RUSAGE_SELF)
     #print ("**********************************************")
     print (mensagem)
-    mem_usage = memory_profiler.memory_usage()[0]
+    print ("CPU Usage: " + str(psutil.cpu_times()))
+    print ("CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
+    #print ("CPU Percent:1: " + str(psutil.cpu_percent(interval=1, percpu=True)))
+    #print ("CPU Percent:0.1: " + str(psutil.cpu_percent(interval=0.1, percpu=True)))
+   mem_usage = memory_profiler.memory_usage()[0]
     print ("**** Memory Usage: " + str(mem_usage))
     #for name, desc in [
     # ('ru_utime', 'User time'),
@@ -85,13 +89,12 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     cdef CXgboost model_c = CXgboost(depth, n_features, n_estimators, 0, base_score)
     uso("CXgboost Intanciation: End")
 
-    cdef float x_cython[20], time_c_xgb = 0.0, time_xgb = 0.0
+    cdef float x_cython[50], time_c_xgb = 0.0, time_xgb = 0.0
     cdef int j, q, N = 10
 
     #performing tests
     total_c= memory_profiler.memory_usage()[0]
     total_p= memory_profiler.memory_usage()[0]
-    
     uso("Performing Cython tests: Begin")
     for i in xrange(n_samples):
         for j in xrange(n_features): 
@@ -144,3 +147,4 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
 
 
+                
