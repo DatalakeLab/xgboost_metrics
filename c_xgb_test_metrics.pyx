@@ -89,7 +89,7 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     cdef CXgboost model_c = CXgboost(depth, n_features, n_estimators, 0, base_score)
     uso("CXgboost Intanciation: End")
 
-    cdef float x_cython[20], time_c_xgb = 0.0, time_xgb = 0.0
+    cdef float x_cython[50], time_c_xgb = 0.0, time_xgb = 0.0
     cdef int j, q, N = 10
 
     #performing tests
