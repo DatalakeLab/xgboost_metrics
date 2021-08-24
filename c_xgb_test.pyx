@@ -55,19 +55,21 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     #training xgb classifier on random dataset
     def create_xgb():
             
-        uso("Training XGB Python: Begin")
-        
+
         model = xgb.XGBRegressor(max_depth = depth, learning_rate = 0.1, n_estimators = n_estimators, silent = True, 
                                  objective = 'reg:linear', n_jobs = 8, min_child_weight = 1, 
                                   subsample = 0.8, colsample_bytree = 0.8, random_state = 5, missing = np.nan, base_score = base_score)
 
         model.fit(x, y)
-        
-        uso("Training XGB Python: END")
 
         return model
-
+    
+    uso("Training XGB Python: Begin")
+    start_Training_XGB = time.time()
     model = create_xgb()
+    stop_Training_XGB = time.time()
+    
+    uso("Training XGB Python: END")
     
     #uso("Model Booster: Begin")
     booster = model.get_booster()
@@ -86,7 +88,10 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     # 0 in parameters means objective 'reg:linear'
     
     uso("Training C_XGB Cython: Begin")
+    start_Training_C_XGB = time.time()
     cdef CXgboost model_c = CXgboost(depth, n_features, n_estimators, 0, base_score)
+    stop_Training_C_XGB = time.time()
+
     uso("Training C_XGB Cython: END")
 
     cdef float x_cython[50], time_c_xgb = 0.0, time_xgb = 0.0
@@ -139,13 +144,19 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
 
     
     print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
-    print "XGBoost mean time in ms: %f" % (time_xgb*1000)
-    #print "XGBoost mean Memory in ms: %f" % (total_p/n_samples)
+    time_C_XGB = stop_Training_C_XGB - start_Training_C_XGB
+    time_XGB = stop_Training_XGB - start_Training_XGB
 
-    print "C_XGBoost mean time in ms: %f" % (time_c_xgb*1000)
-    #print "C_XGBoost mean Memory in ms: %f" % (total_c/n_samples)
+    print "XGBoost   Training mean time in ms: %f" % (time_XGB*1000)
+    print "C_XGBoost Training mean time in ms: %f" % (time_C_XGB*1000)
+    
+    print "ACCELERATION TRAINING IS IS %f TIMES\n" % ((stop_Training_XGB-start_Training_XGB) / (stop_Training_C_XGB-start_Training_C_XGB))
 
-    print "ACCELERATION IS %f TIMES\n" % (time_xgb / time_c_xgb)
+    
+    print "XGBoost   Predicting mean time in ms: %f" % (time_xgb*1000)
+    print "C_XGBoost Predicting mean time in ms: %f" % (time_c_xgb*1000)
+
+    print "ACCELERATION PREDICTING IS %f TIMES\n" % (time_xgb / time_c_xgb)
 
 
                 
