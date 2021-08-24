@@ -21,14 +21,14 @@ from memory_profiler import profile
 
 def uso(mensagem):
     #usage = resource.getrusage(resource.RUSAGE_SELF)
-    print ("**********************************************")
-    print (mensagem)
+    ##print ("**********************************************")
+    #print (mensagem)
     #print ("CPU Usage: " + str(psutil.cpu_times()))
-    print ("***CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
+    #print ("***CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
     #print ("CPU Percent:1: " + str(psutil.cpu_percent(interval=1, percpu=True)))
     #print ("CPU Percent:0.1: " + str(psutil.cpu_percent(interval=0.1, percpu=True)))
     mem_usage = memory_profiler.memory_usage()[0]
-    print ("***Memory Usage: " + str(mem_usage))
+    #print ("***Memory Usage: " + str(mem_usage))
     #for name, desc in [
     # ('ru_utime', 'User time'),
     # ('ru_stime', 'System time'),
@@ -143,7 +143,7 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
     uso("Predicting XGB Python: END")
 
     
-    print 'n_samples = %d | n_estimators = %d | max_depth = %d | objective = %s' % (n_samples, n_estimators, depth, 'reg:linear')
+    print 'n_samples = %d | n_features = %d | n_estimators = %d | max_depth = %d' % (n_samples, n_features, n_estimators, depth)
     time_C_XGB = stop_Training_C_XGB - start_Training_C_XGB
     time_XGB = stop_Training_XGB - start_Training_XGB
 
