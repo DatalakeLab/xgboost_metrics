@@ -21,7 +21,7 @@ from memory_profiler import profile
 
 def uso(mensagem):
     #usage = resource.getrusage(resource.RUSAGE_SELF)
-    #print ("**********************************************")
+    print ("**********************************************")
     print (mensagem)
     #print ("CPU Usage: " + str(psutil.cpu_times()))
     print ("***CPU Percent:None: " + str(psutil.cpu_percent(interval=None, percpu=True)))
@@ -110,7 +110,7 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
            if ((i % 5000) == 0) and ((q % 5) == 0):
                 #mem_usage = memory_profiler.memory_usage()[0]
                 #print ("**** Memory Usage: " + str(mem_usage))
-                uso (">>>Predicting C_XGB...")
+                #uso (">>>Predicting C_XGB...")
         #mem_c += memory_profiler.memory_usage()[0]
         #total_c += mem_c/N
         time_c_xgb += (time.time() - start)
@@ -130,7 +130,7 @@ def test_xgb_regression(n_samples = 10000, n_features = 20, n_estimators = 3, de
             if ((i % 5000) == 0) and ((q % 5) == 0):
                 #mem_usage = memory_profiler.memory_usage()[0]
                 #print ("**** Memory Usage: " + str(mem_usage))
-                uso (">>>Predicting XGB...")
+                #uso (">>>Predicting XGB...")
 
         #mem_p += memory_profiler.memory_usage()[0]
         #total_p += mem_p/N
